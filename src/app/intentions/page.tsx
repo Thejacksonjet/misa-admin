@@ -77,17 +77,17 @@ export default function IntentionsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Mass Intentions</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Mass Intentions</h1>
           <p className="text-gray-600 dark:text-gray-400">
             View and manage Mass intentions submitted by parishioners
           </p>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {[
             { key: 'all' as const, label: 'All', icon: 'list' },
             { key: 'pending' as const, label: 'Pending', icon: 'pending' },
@@ -141,7 +141,7 @@ export default function IntentionsPage() {
                 key={intention.id}
                 className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     intention.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/20' :
                     intention.status === 'approved' ? 'bg-green-100 dark:bg-green-900/20' :

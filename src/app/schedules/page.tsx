@@ -33,7 +33,6 @@ export default function SchedulesPage() {
     timeLabel: '',
     language: 'Swahili' as 'Swahili' | 'English' | 'Latin' | 'Other',
     priestName: '',
-    location: '',
     notes: '',
   });
 
@@ -78,7 +77,6 @@ export default function SchedulesPage() {
       timeLabel: '',
       language: 'Swahili',
       priestName: '',
-      location: '',
       notes: '',
     });
     setEditingId(null);
@@ -92,7 +90,6 @@ export default function SchedulesPage() {
       timeLabel: schedule.timeLabel || '',
       language: schedule.language,
       priestName: schedule.priestName || '',
-      location: schedule.location || '',
       notes: schedule.notes || '',
     });
     setEditingId(schedule.id);
@@ -116,18 +113,19 @@ export default function SchedulesPage() {
     if (!userData?.parishId) return;
 
     try {
-      const scheduleData = {
+      const scheduleData: any = {
         parishId: userData.parishId,
         dayOfWeek: formData.dayOfWeek,
         time: formData.time,
-        timeLabel: formData.timeLabel || undefined,
         language: formData.language,
-        priestName: formData.priestName || undefined,
-        location: formData.location || undefined,
-        notes: formData.notes || undefined,
         isActive: true,
         updatedAt: Timestamp.now(),
       };
+
+      // Only include optional fields if they have values
+      if (formData.timeLabel) scheduleData.timeLabel = formData.timeLabel;
+      if (formData.priestName) scheduleData.priestName = formData.priestName;
+      if (formData.notes) scheduleData.notes = formData.notes;
 
       if (editingId) {
         await updateDoc(doc(db, 'mass_schedules', editingId), scheduleData);
@@ -156,18 +154,18 @@ export default function SchedulesPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Mass Schedules</h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">Mass Schedules</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Manage your parish's Mass schedules
             </p>
           </div>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors"
           >
             <span className="material-symbols-outlined">add</span>
             <span>Add Schedule</span>
@@ -260,19 +258,6 @@ export default function SchedulesPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                      placeholder="Kanisa Kuu (Central)"
-                    />
-                  </div>
-
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Notes
@@ -342,37 +327,34 @@ export default function SchedulesPage() {
                     {daySchedules.map(schedule => (
                       <div
                         key={schedule.id}
-                        className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                       >
-                        <div className="w-20 h-20 bg-primary/10 dark:bg-primary/20 rounded-lg flex flex-col items-center justify-center text-primary flex-shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 dark:bg-primary/20 rounded-lg flex flex-col items-center justify-center text-primary flex-shrink-0">
                           {schedule.timeLabel && (
-                            <span className="text-xs font-bold">{schedule.timeLabel}</span>
+                            <span className="text-[10px] sm:text-xs font-bold">{schedule.timeLabel}</span>
                           )}
-                          <span className="text-lg font-bold">{schedule.time}</span>
+                          <span className="text-sm sm:text-lg font-bold">{schedule.time}</span>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900 dark:text-white">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 dark:text-white truncate">
                             {schedule.language} Mass
                           </p>
-                          {schedule.location && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{schedule.location}</p>
-                          )}
                           {schedule.priestName && (
-                            <p className="text-xs text-gray-500 dark:text-gray-500">Padre: {schedule.priestName}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 truncate">Padre: {schedule.priestName}</p>
                           )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                           <button
                             onClick={() => handleEdit(schedule)}
-                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
+                            className="p-1.5 sm:p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
                           >
-                            <span className="material-symbols-outlined">edit</span>
+                            <span className="material-symbols-outlined text-xl">edit</span>
                           </button>
                           <button
                             onClick={() => handleDelete(schedule.id)}
-                            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                            className="p-1.5 sm:p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
                           >
-                            <span className="material-symbols-outlined">delete</span>
+                            <span className="material-symbols-outlined text-xl">delete</span>
                           </button>
                         </div>
                       </div>
