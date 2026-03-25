@@ -10,28 +10,28 @@ export default function SettingsPage() {
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Mipangilio</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your account and preferences
+            Simamia akaunti yako na mapendeleo
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Account Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Account Information</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Taarifa za Akaunti</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Barua Pepe</p>
                 <p className="text-gray-900 dark:text-white font-medium">{userData?.email}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Jukumu</p>
                 <p className="text-gray-900 dark:text-white font-medium">{userData?.role}</p>
               </div>
               {userData?.parishId && (
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Parish ID</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Kitambulisho cha Parokia</p>
                   <p className="text-gray-900 dark:text-white font-medium font-mono text-sm">
                     {userData.parishId}
                   </p>
@@ -41,17 +41,17 @@ export default function SettingsPage() {
           </div>
 
           {/* Help */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Help & Support</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Msaada</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Need help? Contact your diocese administrator or email support.
+              Unahitaji msaada? Wasiliana na msimamizi wa jimbo lako au tuma barua pepe.
             </p>
             <a
               href="mailto:support@misa.app"
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined">email</span>
-              Contact Support
+              Wasiliana na Msaada
             </a>
           </div>
         </div>

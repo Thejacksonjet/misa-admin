@@ -5,8 +5,10 @@
 }
 
 @theme inline {
-  --color-primary: #17cf63;
-  --color-primary-dark: #12a84f;
+  --color-primary: #059669;
+  --color-primary-dark: #047857;
+  --color-primary-light: #d1fae5;
+  --color-accent: #10b981;
   --font-sans: var(--font-inter);
 }
 

@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Misa Admin - Parish Management Dashboard',
-  description: 'Manage your Catholic parish information, Mass schedules, and intentions',
+  title: 'Misa Admin — Dashibodi ya Parokia',
+  description: 'Simamia taarifa za parokia yako, ratiba za Misa, na nia za Misa',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="sw">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"

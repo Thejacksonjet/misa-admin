@@ -20,7 +20,17 @@ export default function ParishPage() {
     name: '',
     nameSwahili: '',
     diocese: '',
+    region: '',
+    deanery: '',
     address: '',
+    description: '',
+    history: '',
+    patronSaint: '',
+    foundedYear: '',
+    priestName: '',
+    officeHours: '',
+    mpesaTillNumber: '',
+    mpesaAmount: '',
     latitude: '',
     longitude: '',
     phone: '',
@@ -29,32 +39,36 @@ export default function ParishPage() {
   });
 
   useEffect(() => {
-    if (userData?.parishId) {
-      loadParish();
-    }
+    if (userData?.parishId) loadParish();
   }, [userData]);
 
   const loadParish = async () => {
     if (!userData?.parishId) return;
-
     try {
       setLoading(true);
       const parishDoc = await getDoc(doc(db, 'parishes', userData.parishId));
-
       if (parishDoc.exists()) {
         const data = parishDoc.data();
         setParish({
-          id: parishDoc.id,
-          ...data,
+          id: parishDoc.id, ...data,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Parish);
-
         setFormData({
           name: data.name || '',
           nameSwahili: data.nameSwahili || '',
           diocese: data.diocese || '',
+          region: data.region || '',
+          deanery: data.deanery || '',
           address: data.address || '',
+          description: data.description || '',
+          history: data.history || '',
+          patronSaint: data.patronSaint || '',
+          foundedYear: data.foundedYear?.toString() || '',
+          priestName: data.priestName || '',
+          officeHours: data.officeHours || '',
+          mpesaTillNumber: data.mpesaTillNumber || '',
+          mpesaAmount: data.mpesaAmount?.toString() || '',
           latitude: data.location?.latitude?.toString() || '',
           longitude: data.location?.longitude?.toString() || '',
           phone: data.phone || '',
@@ -72,17 +86,15 @@ export default function ParishPage() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !userData?.parishId) return;
-
     try {
       setUploading(true);
       const storageRef = ref(storage, `parishes/${userData.parishId}/${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-
       setFormData({ ...formData, imageUrl: downloadURL });
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      alert('Imeshindwa kupakia picha. Tafadhali jaribu tena.');
     } finally {
       setUploading(false);
     }
@@ -91,12 +103,10 @@ export default function ParishPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userData?.parishId) return;
-
     try {
       setSaving(true);
       setSuccess(false);
-
-      const parishData: any = {
+      const parishData: Record<string, unknown> = {
         name: formData.name,
         diocese: formData.diocese,
         address: formData.address,
@@ -106,44 +116,45 @@ export default function ParishPage() {
         },
         updatedAt: Timestamp.now(),
       };
-
-      // Only include optional fields if they have values
       if (formData.nameSwahili) parishData.nameSwahili = formData.nameSwahili;
+      if (formData.region) parishData.region = formData.region;
+      if (formData.deanery) parishData.deanery = formData.deanery;
+      if (formData.description) parishData.description = formData.description;
+      if (formData.history) parishData.history = formData.history;
+      if (formData.patronSaint) parishData.patronSaint = formData.patronSaint;
+      if (formData.foundedYear) parishData.foundedYear = parseInt(formData.foundedYear);
+      if (formData.priestName) parishData.priestName = formData.priestName;
+      if (formData.officeHours) parishData.officeHours = formData.officeHours;
+      if (formData.mpesaTillNumber) parishData.mpesaTillNumber = formData.mpesaTillNumber;
+      if (formData.mpesaAmount) parishData.mpesaAmount = parseFloat(formData.mpesaAmount);
       if (formData.phone) parishData.phone = formData.phone;
       if (formData.email) parishData.email = formData.email;
       if (formData.imageUrl) parishData.imageUrl = formData.imageUrl;
 
       if (parish) {
-        // Update existing parish
         await updateDoc(doc(db, 'parishes', userData.parishId), parishData);
       } else {
-        // Create new parish
-        await setDoc(doc(db, 'parishes', userData.parishId), {
-          ...parishData,
-          createdAt: Timestamp.now(),
-        });
+        await setDoc(doc(db, 'parishes', userData.parishId), { ...parishData, createdAt: Timestamp.now() });
       }
-
       setSuccess(true);
       loadParish();
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving parish:', error);
-      alert('Failed to save parish details. Please try again.');
+      alert('Imeshindwa kuhifadhi. Tafadhali jaribu tena.');
     } finally {
       setSaving(false);
     }
   };
 
+  const inputClass = "w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white";
+
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
-        {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Parish Details</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage your parish information and contact details.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Taarifa za Parokia</h1>
+          <p className="text-gray-600 dark:text-gray-400">Simamia taarifa na mawasiliano ya parokia yako.</p>
         </div>
 
         {loading ? (
@@ -156,199 +167,149 @@ export default function ParishPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {success && (
-              <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                  ✓ Parish details saved successfully!
+                  ✓ Taarifa za parokia zimehifadhiwa!
                 </p>
               </div>
             )}
 
             {/* Basic Information */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Basic Information</h2>
-
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Taarifa za Msingi</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Parish Name (English) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="St. Peter Parish"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jina la Parokia (Kiingereza) <span className="text-red-500">*</span></label>
+                  <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={inputClass} placeholder="St. Peter Parish" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Parish Name (Swahili)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nameSwahili}
-                    onChange={(e) => setFormData({ ...formData, nameSwahili: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="Parokia ya Mt. Petro"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jina la Parokia (Kiswahili)</label>
+                  <input type="text" value={formData.nameSwahili} onChange={e => setFormData({...formData, nameSwahili: e.target.value})} className={inputClass} placeholder="Parokia ya Mt. Petro" />
                 </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Diocese <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.diocese}
-                    onChange={(e) => setFormData({ ...formData, diocese: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="Archdiocese of Dar es Salaam"
-                  />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jimbo <span className="text-red-500">*</span></label>
+                  <input type="text" required value={formData.diocese} onChange={e => setFormData({...formData, diocese: e.target.value})} className={inputClass} placeholder="Jimbo Kuu la Dar es Salaam" />
                 </div>
-
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mkoa</label>
+                  <input type="text" value={formData.region} onChange={e => setFormData({...formData, region: e.target.value})} className={inputClass} placeholder="Dar es Salaam" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dekanati</label>
+                  <input type="text" value={formData.deanery} onChange={e => setFormData({...formData, deanery: e.target.value})} className={inputClass} placeholder="Dekanati ya Masaki" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mtakatifu Mlezi</label>
+                  <input type="text" value={formData.patronSaint} onChange={e => setFormData({...formData, patronSaint: e.target.value})} className={inputClass} placeholder="Mt. Petro" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mwaka wa Kuanzishwa</label>
+                  <input type="number" value={formData.foundedYear} onChange={e => setFormData({...formData, foundedYear: e.target.value})} className={inputClass} placeholder="1954" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Padre Paroko</label>
+                  <input type="text" value={formData.priestName} onChange={e => setFormData({...formData, priestName: e.target.value})} className={inputClass} placeholder="Padre Petro Makundi" />
+                </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Address <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    required
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    rows={2}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white resize-none"
-                    placeholder="Masaki, Dar es Salaam, Tanzania"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Anwani <span className="text-red-500">*</span></label>
+                  <textarea required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} rows={2} className={inputClass + " resize-none"} placeholder="Masaki, Dar es Salaam, Tanzania" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Maelezo Mafupi</label>
+                  <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={2} className={inputClass + " resize-none"} placeholder="Maelezo mafupi ya parokia..." />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Historia ya Parokia</label>
+                  <textarea value={formData.history} onChange={e => setFormData({...formData, history: e.target.value})} rows={3} className={inputClass + " resize-none"} placeholder="Historia fupi ya parokia..." />
+                </div>
+              </div>
+            </div>
+
+            {/* M-Pesa & Office */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">M-Pesa na Ofisi</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Namba ya Till ya M-Pesa</label>
+                  <input type="text" value={formData.mpesaTillNumber} onChange={e => setFormData({...formData, mpesaTillNumber: e.target.value})} className={inputClass} placeholder="545454" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kiasi cha Nia (TZS)</label>
+                  <input type="number" value={formData.mpesaAmount} onChange={e => setFormData({...formData, mpesaAmount: e.target.value})} className={inputClass} placeholder="5000" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Saa za Ofisi</label>
+                  <input type="text" value={formData.officeHours} onChange={e => setFormData({...formData, officeHours: e.target.value})} className={inputClass} placeholder="Jumatatu-Ijumaa: 8:00-16:00" />
                 </div>
               </div>
             </div>
 
             {/* Location */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Location Coordinates</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Mahali</h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Use Google Maps to find your parish's coordinates: Right-click on the location → Click on coordinates to copy
+                Tumia Google Maps kupata latitude na longitude za parokia yako.
               </p>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Latitude <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    required
-                    value={formData.latitude}
-                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="-6.7617"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Latitude <span className="text-red-500">*</span></label>
+                  <input type="number" step="any" required value={formData.latitude} onChange={e => setFormData({...formData, latitude: e.target.value})} className={inputClass} placeholder="-6.7617" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Longitude <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    required
-                    value={formData.longitude}
-                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="39.2634"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Longitude <span className="text-red-500">*</span></label>
+                  <input type="number" step="any" required value={formData.longitude} onChange={e => setFormData({...formData, longitude: e.target.value})} className={inputClass} placeholder="39.2634" />
                 </div>
               </div>
             </div>
 
-            {/* Contact Information */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Contact Information</h2>
-
+            {/* Contact */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Mawasiliano</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="+255 XXX XXX XXX"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Namba ya Simu</label>
+                  <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className={inputClass} placeholder="+255 XXX XXX XXX" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                    placeholder="info@parish.com"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Barua Pepe</label>
+                  <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className={inputClass} placeholder="info@parokia.com" />
                 </div>
               </div>
             </div>
 
             {/* Parish Image */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Parish Image</h2>
-
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Picha ya Parokia</h2>
               {formData.imageUrl && (
                 <div className="mb-4">
-                  <img
-                    src={formData.imageUrl}
-                    alt="Parish"
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
+                  <img src={formData.imageUrl} alt="Parokia" className="w-full h-64 object-cover rounded-lg" />
                 </div>
               )}
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Upload Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                />
-                {uploading && (
-                  <p className="text-sm text-gray-500 mt-2">Uploading image...</p>
-                )}
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pakia Picha</label>
+                <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className={inputClass} />
+                {uploading && <p className="text-sm text-gray-500 mt-2">Inapakia picha...</p>}
               </div>
             </div>
 
             {/* Save Button */}
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined">save</span>
-                    <span>Save Changes</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                  <span>Inahifadhi...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined">save</span>
+                  <span>Hifadhi Mabadiliko</span>
+                </>
+              )}
+            </button>
           </form>
         )}
       </div>

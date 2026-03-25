@@ -28,7 +28,7 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError('Invalid email or password. Please try again.');
+      setError('Barua pepe au nenosiri si sahihi. Tafadhali jaribu tena.');
     } finally {
       setLoading(false);
     }
@@ -43,23 +43,23 @@ export default function LoginPage() {
             <span className="material-symbols-outlined text-white text-4xl">church</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Misa Admin</h1>
-          <p className="text-gray-600 dark:text-gray-400">Parish Management Dashboard</p>
+          <p className="text-gray-600 dark:text-gray-400">Dashibodi ya Usimamizi wa Parokia</p>
         </div>
 
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Sign In</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Ingia</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
+                Barua Pepe
               </label>
               <input
                 type="email"
@@ -67,13 +67,13 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white"
-                placeholder="admin@parish.com"
+                placeholder="admin@parokia.com"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                Nenosiri
               </label>
               <input
                 type="password"
@@ -93,12 +93,12 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  <span>Signing in...</span>
+                  <span>Inaingia...</span>
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined">login</span>
-                  <span>Sign In</span>
+                  <span>Ingia</span>
                 </>
               )}
             </button>
@@ -106,15 +106,15 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account? Contact your diocese administrator.
+              Huna akaunti? Wasiliana na msimamizi wa jimbo lako.
             </p>
           </div>
         </div>
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Misa Parish Management System</p>
-          <p className="mt-1">© 2024 All rights reserved</p>
+          <p>Misa — Mfumo wa Usimamizi wa Parokia</p>
+          <p className="mt-1">© 2024 Haki zote zimehifadhiwa</p>
         </div>
       </div>
     </div>

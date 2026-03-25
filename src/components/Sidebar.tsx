@@ -12,11 +12,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-  { href: '/parish', icon: 'church', label: 'Parish Details' },
-  { href: '/schedules', icon: 'calendar_month', label: 'Mass Schedules' },
-  { href: '/intentions', icon: 'assignment', label: 'Mass Intentions' },
-  { href: '/settings', icon: 'settings', label: 'Settings' },
+  { href: '/dashboard', icon: 'dashboard', label: 'Dashibodi' },
+  { href: '/parish', icon: 'church', label: 'Taarifa za Parokia' },
+  { href: '/schedules', icon: 'calendar_month', label: 'Ratiba za Misa' },
+  { href: '/intentions', icon: 'assignment', label: 'Nia za Misa' },
+  { href: '/notices', icon: 'campaign', label: 'Matangazo' },
+  { href: '/settings', icon: 'settings', label: 'Mipangilio' },
 ];
 
 interface SidebarProps {
@@ -49,20 +50,21 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside className={`
         fixed lg:sticky top-0 left-0 z-50 lg:z-auto
-        w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800
+        w-64 bg-white dark:bg-gray-900
         flex flex-col h-screen
         transform transition-transform duration-200 ease-in-out
+        shadow-lg lg:shadow-none
         ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo & Title */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div className="p-6 bg-gray-50 dark:bg-gray-800/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-white">church</span>
             </div>
             <div>
               <h1 className="font-bold text-lg text-gray-900 dark:text-white">Misa Admin</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Parish Management</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Usimamizi wa Parokia</p>
             </div>
           </div>
         </div>
@@ -93,16 +95,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* User Info & Actions */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 bg-gray-50 dark:bg-gray-800/50">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 mb-2"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-2"
           >
             <span className="material-symbols-outlined text-xl">
               {theme === 'dark' ? 'light_mode' : 'dark_mode'}
             </span>
-            <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            <span className="font-medium">{theme === 'dark' ? 'Mwanga' : 'Giza'}</span>
           </button>
 
           {/* User Info */}
@@ -121,7 +123,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <span className="material-symbols-outlined text-xl">logout</span>
-            <span className="font-medium">Sign Out</span>
+            <span className="font-medium">Toka</span>
           </button>
         </div>
       </aside>
