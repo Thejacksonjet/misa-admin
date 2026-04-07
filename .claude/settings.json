@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firebase-tools@latest",
+        "mcp",
+        "--dir",
+        "/home/jackson/Projects/misa/misa-admin"
+      ]
+    }
+  },
+  "enabledPlugins": {
+    "firebase@claude-plugins-official": true
+  }
+}
