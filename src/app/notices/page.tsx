@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Notice } from '@/types';
@@ -27,6 +28,8 @@ export default function NoticesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -68,6 +71,23 @@ export default function NoticesPage() {
     setShowForm(false);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userData?.parishId) return;
+    try {
+      setUploading(true);
+      const storageRef = ref(storage, `notices/${userData.parishId}/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      setFormData((prev) => ({ ...prev, imageUrl: downloadURL }));
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Imeshindwa kupakia picha. Tafadhali jaribu tena.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleEdit = (notice: Notice) => {
     setFormData({
       title: notice.title,
@@ -94,6 +114,7 @@ export default function NoticesPage() {
     e.preventDefault();
     if (!userData?.parishId) return;
     try {
+      setSaving(true);
       const data: Record<string, unknown> = {
         parishId: userData.parishId,
         title: formData.title,
@@ -113,6 +134,8 @@ export default function NoticesPage() {
     } catch (error) {
       console.error('Error saving:', error);
       alert('Imeshindwa kuhifadhi');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -168,34 +191,74 @@ export default function NoticesPage() {
                     placeholder="Andika maudhui ya tangazo..."
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aina</label>
-                    <select
-                      value={formData.category}
-                      onChange={e => setFormData({ ...formData, category: e.target.value as Notice['category'] })}
-                      className={inputClass}
-                    >
-                      {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL ya Picha</label>
-                    <input
-                      type="url"
-                      value={formData.imageUrl}
-                      onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className={inputClass}
-                      placeholder="https://..."
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aina</label>
+                  <select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value as Notice['category'] })}
+                    className={inputClass}
+                  >
+                    {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  </select>
                 </div>
-                <div className="flex gap-4 pt-4">
+
+                {/* Image upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Picha (hiari)
+                  </label>
+                  {formData.imageUrl && (
+                    <div className="relative mb-2 inline-block">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Hakiki"
+                        className="h-32 rounded-lg object-cover border border-gray-200 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, imageUrl: '' }))}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  )}
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-lg border border-dashed cursor-pointer transition-colors ${
+                    uploading
+                      ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-primary/5'
+                  }`}>
+                    <span className="material-symbols-outlined text-gray-400">upload</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {uploading ? 'Inapakia picha...' : formData.imageUrl ? 'Badilisha picha' : 'Chagua picha'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                <div className="flex gap-4 pt-2">
                   <button type="button" onClick={resetForm} className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Ghairi
                   </button>
-                  <button type="submit" className="flex-1 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors">
-                    {editingId ? 'Sasisha' : 'Chapisha'}
+                  <button
+                    type="submit"
+                    disabled={saving || uploading}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                        Inahifadhi...
+                      </>
+                    ) : (
+                      editingId ? 'Sasisha' : 'Chapisha'
+                    )}
                   </button>
                 </div>
               </form>

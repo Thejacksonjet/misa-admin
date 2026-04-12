@@ -6,7 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Parish } from '@/types';
+import { Parish, LiturgicalSeason } from '@/types';
 
 export default function ParishPage() {
   const { userData } = useAuth();
@@ -36,6 +36,8 @@ export default function ParishPage() {
     phone: '',
     email: '',
     imageUrl: '',
+    currentSeason: '' as LiturgicalSeason | '',
+    seasonNote: '',
   });
 
   useEffect(() => {
@@ -74,6 +76,8 @@ export default function ParishPage() {
           phone: data.phone || '',
           email: data.email || '',
           imageUrl: data.imageUrl || '',
+          currentSeason: data.currentSeason || '',
+          seasonNote: data.seasonNote || '',
         });
       }
     } catch (error) {
@@ -130,6 +134,10 @@ export default function ParishPage() {
       if (formData.phone) parishData.phone = formData.phone;
       if (formData.email) parishData.email = formData.email;
       if (formData.imageUrl) parishData.imageUrl = formData.imageUrl;
+      if (formData.currentSeason) parishData.currentSeason = formData.currentSeason;
+      else parishData.currentSeason = null;
+      if (formData.seasonNote) parishData.seasonNote = formData.seasonNote;
+      else parishData.seasonNote = null;
 
       if (parish) {
         await updateDoc(doc(db, 'parishes', userData.parishId), parishData);
@@ -273,6 +281,46 @@ export default function ParishPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Barua Pepe</label>
                   <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className={inputClass} placeholder="info@parokia.com" />
+                </div>
+              </div>
+            </div>
+
+            {/* Liturgical Season */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Kipindi cha Liturujia</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Weka kipindi cha sasa cha Kanisa ili kionyeshwe kwa waumini kwenye programu.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Kipindi cha Sasa
+                  </label>
+                  <select
+                    value={formData.currentSeason}
+                    onChange={e => setFormData({ ...formData, currentSeason: e.target.value as LiturgicalSeason | '' })}
+                    className={inputClass}
+                  >
+                    <option value="">-- Chagua Kipindi --</option>
+                    <option value="ordinary_time">Wakati wa Kawaida</option>
+                    <option value="advent">Majilio</option>
+                    <option value="christmas">Noeli</option>
+                    <option value="lent">Kwaresima</option>
+                    <option value="holy_week">Wiki Takatifu</option>
+                    <option value="easter">Pasaka</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Ujumbe wa Kipindi (hiari)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.seasonNote}
+                    onChange={e => setFormData({ ...formData, seasonNote: e.target.value })}
+                    className={inputClass}
+                    placeholder="Mf: Wiki 3 ya Kwaresima"
+                  />
                 </div>
               </div>
             </div>

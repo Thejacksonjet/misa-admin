@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useNotifications } from '@/contexts/NotificationsContext';
 
 interface NavItem {
   href: string;
@@ -11,13 +12,19 @@ interface NavItem {
   label: string;
 }
 
-const navItems: NavItem[] = [
+const parishNavItems: NavItem[] = [
   { href: '/dashboard', icon: 'dashboard', label: 'Dashibodi' },
   { href: '/parish', icon: 'church', label: 'Taarifa za Parokia' },
   { href: '/schedules', icon: 'calendar_month', label: 'Ratiba za Misa' },
   { href: '/intentions', icon: 'assignment', label: 'Nia za Misa' },
   { href: '/notices', icon: 'campaign', label: 'Matangazo' },
   { href: '/settings', icon: 'settings', label: 'Mipangilio' },
+];
+
+const superNavItems: NavItem[] = [
+  { href: '/super/parishes', icon: 'location_city', label: 'Parokia Zote' },
+  { href: '/super/admins', icon: 'manage_accounts', label: 'Wasimamizi' },
+  { href: '/super/analytics', icon: 'bar_chart', label: 'Takwimu' },
 ];
 
 interface SidebarProps {
@@ -27,8 +34,9 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { userData, signOut } = useAuth();
+  const { userData, isSuperAdmin, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { pendingCount } = useNotifications();
 
   const handleSignOut = async () => {
     try {
@@ -36,6 +44,34 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const NavLink = ({ item }: { item: NavItem }) => {
+    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+    const showBadge = item.href === '/intentions' && pendingCount > 0;
+    return (
+      <li>
+        <Link
+          href={item.href}
+          onClick={onClose}
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            isActive
+              ? 'bg-primary text-white'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+          }`}
+        >
+          <span className="material-symbols-outlined text-xl">{item.icon}</span>
+          <span className="font-medium flex-1">{item.label}</span>
+          {showBadge && (
+            <span className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-bold ${
+              isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'
+            }`}>
+              {pendingCount > 99 ? '99+' : pendingCount}
+            </span>
+          )}
+        </Link>
+      </li>
+    );
   };
 
   return (
@@ -71,27 +107,28 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto">
+          {/* Parish Admin section — visible to all */}
           <ul className="space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
+            {parishNavItems.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
           </ul>
+
+          {/* Super Admin section — only for SUPER_ADMIN */}
+          {isSuperAdmin && (
+            <>
+              <div className="mt-6 mb-2 px-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  Msimamizi Mkuu
+                </p>
+              </div>
+              <ul className="space-y-1">
+                {superNavItems.map((item) => (
+                  <NavLink key={item.href} item={item} />
+                ))}
+              </ul>
+            </>
+          )}
         </nav>
 
         {/* User Info & Actions */}
@@ -113,7 +150,15 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {userData.displayName || userData.email}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{userData.role}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  isSuperAdmin
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                }`}>
+                  {isSuperAdmin ? 'Super Admin' : 'Parish Admin'}
+                </span>
+              </div>
             </div>
           )}
 

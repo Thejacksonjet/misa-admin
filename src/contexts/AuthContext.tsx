@@ -15,6 +15,7 @@ interface AuthContextType {
   user: FirebaseUser | null;
   userData: User | null;
   loading: boolean;
+  isSuperAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
+  isSuperAdmin: false,
   signIn: async () => {},
   signOut: async () => {},
 });
@@ -68,8 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseSignOut(auth);
   };
 
+  const isSuperAdmin = userData?.role === 'SUPER_ADMIN';
+
   return (
-    <AuthContext.Provider value={{ user, userData, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, userData, loading, isSuperAdmin, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

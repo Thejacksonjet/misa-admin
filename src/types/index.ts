@@ -1,3 +1,11 @@
+export type LiturgicalSeason =
+  | 'ordinary_time'
+  | 'advent'
+  | 'christmas'
+  | 'lent'
+  | 'holy_week'
+  | 'easter';
+
 export interface Parish {
   id: string;
   name: string;
@@ -21,6 +29,8 @@ export interface Parish {
   phone?: string;
   email?: string;
   imageUrl?: string;
+  currentSeason?: LiturgicalSeason;
+  seasonNote?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -88,5 +98,6 @@ export interface User {
   role: 'PARISH_ADMIN' | 'SUPER_ADMIN';
   parishId?: string;
   displayName?: string;
+  status?: 'active' | 'invited' | 'disabled';
   createdAt: Date;
 }
